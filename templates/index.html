@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PHYSICS 4A Lab 1 — Measurements and Error Analysis</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 18px; background:#f6f7fb; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    h1 { margin: 0 0 8px; }
+    .hint { color:#444; margin: 0 0 18px; }
+    .card { background: white; border-radius: 10px; padding: 16px; margin: 12px 0; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+    .grid { display: grid; gap: 12px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    label { font-weight: 600; display:block; margin: 6px 0 6px; }
+    input[type="text"], textarea {
+      width: 100%; padding: 10px; border: 1px solid #cfd6e4; border-radius: 8px; background: #fff;
+      box-sizing: border-box;
+    }
+    textarea { min-height: 90px; }
+    input[type="file"] { width: 100%; }
+    .small { font-size: 12px; color:#555; }
+    .btn { background:#1f6feb; color:white; border:none; padding: 12px 16px; border-radius: 10px; cursor:pointer; font-weight: 700; }
+    .btn:hover { filter: brightness(.95); }
+    .divider { height: 1px; background: #e6e9f2; margin: 12px 0; }
+    .note { background:#fff4cc; border:1px solid #ffe08a; padding: 10px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>PHYSICS 4A — Lab 1: Measurements and Error Analysis</h1>
+    <p class="hint">Fill the form, upload your handwritten pages (images/PDF), then click <b>Generate PDF</b>. Your uploads will be embedded into the final PDF.</p>
+
+    <div class="note small">
+      Allowed uploads: <b>.pdf .png .jpg .jpeg .webp</b>.
+      Tip: If you have multiple pages, upload a single PDF, or upload multiple images.
+    </div>
+
+    <form action="/generate" method="post" enctype="multipart/form-data">
+      <div class="card">
+        <h2>Basic Info</h2>
+        <div class="grid grid-2">
+          <div>
+            <label>Lab member name 1</label>
+            <input type="text" name="member1" placeholder="Student name" />
+          </div>
+          <div>
+            <label>Date</label>
+            <input type="text" name="date" placeholder="YYYY-MM-DD" />
+          </div>
+          <div>
+            <label>Lab member name 2</label>
+            <input type="text" name="member2" placeholder="Student name" />
+          </div>
+          <div>
+            <label>Lab member name 3</label>
+            <input type="text" name="member3" placeholder="Student name" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Part I — Measuring Device Uncertainty</h2>
+        <div class="grid grid-3">
+          <div>
+            <label>Meter stick uncertainty</label>
+            <input type="text" name="u_meterstick" placeholder="e.g., 0.05 cm" />
+          </div>
+          <div>
+            <label>Metric ruler uncertainty</label>
+            <input type="text" name="u_metricruler" placeholder="e.g., 0.05 cm" />
+          </div>
+          <div>
+            <label>Vernier calipers uncertainty</label>
+            <input type="text" name="u_vernier" placeholder="e.g., 0.001 cm" />
+          </div>
+          <div>
+            <label>Triple-beam balance uncertainty</label>
+            <input type="text" name="u_triplebeam" placeholder="e.g., 0.05 g" />
+          </div>
+          <div>
+            <label>Digital balance uncertainty</label>
+            <input type="text" name="u_digital" placeholder="e.g., 0.01 g" />
+          </div>
+          <div>
+            <label>Micrometer uncertainty</label>
+            <input type="text" name="u_micrometer" placeholder="e.g., 0.0005 cm" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Part II — Table-Top Volume</h2>
+        <div class="grid grid-2">
+          <div>
+            <label>Measuring tool</label>
+            <input type="text" name="table_tool" placeholder="e.g., meter stick" />
+          </div>
+          <div>
+            <label>Object</label>
+            <input type="text" name="table_object" placeholder="e.g., tabletop" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid grid-3">
+          <div>
+            <label>Length (cm)</label>
+            <input type="text" name="table_L" />
+          </div>
+          <div>
+            <label>Width (cm)</label>
+            <input type="text" name="table_W" />
+          </div>
+          <div>
+            <label>Thickness (cm)</label>
+            <input type="text" name="table_T" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label>Expression for uncertainty σV (typed)</label>
+        <textarea name="table_sigmaV_expr" placeholder="Type your derived equation here (or upload handwritten below)."></textarea>
+
+        <div class="grid grid-2">
+          <div>
+            <label>Tabletop volume</label>
+            <input type="text" name="table_volume" placeholder="number" />
+          </div>
+          <div>
+            <label>Volume units</label>
+            <input type="text" name="table_volume_units" placeholder="e.g., cm^3" />
+          </div>
+          <div>
+            <label>σV (uncertainty)</label>
+            <input type="text" name="table_sigmaV" placeholder="number" />
+          </div>
+          <div>
+            <label>σV units</label>
+            <input type="text" name="table_sigmaV_units" placeholder="e.g., cm^3" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label>Upload handwritten σV derivation (optional)</label>
+        <input type="file" name="file_sigmaV" multiple />
+        <div class="small">Upload images or a PDF. These pages will be appended into the final PDF.</div>
+      </div>
+
+      <div class="card">
+        <h2>Part III — Aluminum Block (Summary)</h2>
+
+        <h3>Dimensions</h3>
+        <div class="grid grid-3">
+          <div>
+            <label>Ruler L (cm)</label>
+            <input type="text" name="blk_ruler_L" />
+          </div>
+          <div>
+            <label>Ruler W (cm)</label>
+            <input type="text" name="blk_ruler_W" />
+          </div>
+          <div>
+            <label>Ruler T (cm)</label>
+            <input type="text" name="blk_ruler_T" />
+          </div>
+
+          <div>
+            <label>Vernier L (cm)</label>
+            <input type="text" name="blk_vernier_L" />
+          </div>
+          <div>
+            <label>Vernier W (cm)</label>
+            <input type="text" name="blk_vernier_W" />
+          </div>
+          <div>
+            <label>Vernier T (cm)</label>
+            <input type="text" name="blk_vernier_T" />
+          </div>
+
+          <div>
+            <label>Micrometer L (cm)</label>
+            <input type="text" name="blk_micro_L" />
+          </div>
+          <div>
+            <label>Micrometer W (cm)</label>
+            <input type="text" name="blk_micro_W" />
+          </div>
+          <div>
+            <label>Micrometer T (cm)</label>
+            <input type="text" name="blk_micro_T" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <h3>Mass</h3>
+        <div class="grid grid-2">
+          <div>
+            <label>Triple-beam mass</label>
+            <input type="text" name="mass_triple" />
+          </div>
+          <div>
+            <label>Triple-beam mass error</label>
+            <input type="text" name="mass_triple_err" />
+          </div>
+          <div>
+            <label>Digital mass</label>
+            <input type="text" name="mass_digital" />
+          </div>
+          <div>
+            <label>Digital mass error</label>
+            <input type="text" name="mass_digital_err" />
+          </div>
+          <div>
+            <label>Mass units</label>
+            <input type="text" name="mass_units" value="g" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label>Expression for density uncertainty σρ (typed)</label>
+        <textarea name="sigma_rho_expr" placeholder="Type σρ expression here (or upload handwritten below)."></textarea>
+
+        <label>Upload handwritten σV / σρ work for aluminum block (optional)</label>
+        <input type="file" name="file_block_sigmaV" multiple />
+        <div class="small">Upload images or PDF.</div>
+
+        <div class="divider"></div>
+
+        <h3>Density results</h3>
+        <div class="grid grid-2">
+          <div>
+            <label>ρ (ruler + triple)</label>
+            <input type="text" name="rho_ruler_triple" />
+          </div>
+          <div>
+            <label>ρ error (ruler + triple)</label>
+            <input type="text" name="rho_ruler_triple_err" />
+          </div>
+          <div>
+            <label>ρ (vernier + digital)</label>
+            <input type="text" name="rho_vernier_digital" />
+          </div>
+          <div>
+            <label>ρ error (vernier + digital)</label>
+            <input type="text" name="rho_vernier_digital_err" />
+          </div>
+          <div>
+            <label>ρ (micrometer + digital)</label>
+            <input type="text" name="rho_micro_digital" />
+          </div>
+          <div>
+            <label>ρ error (micrometer + digital)</label>
+            <input type="text" name="rho_micro_digital_err" />
+          </div>
+          <div>
+            <label>Density units</label>
+            <input type="text" name="rho_units" value="g/cm³" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label>Upload sample density calculation (optional)</label>
+        <input type="file" name="file_sample_density" multiple />
+      </div>
+
+      <div class="card">
+        <h2>Data Analysis</h2>
+        <div class="grid grid-3">
+          <div>
+            <label>% error (triple + ruler)</label>
+            <input type="text" name="perr_triple_ruler" />
+          </div>
+          <div>
+            <label>% error (digital + vernier)</label>
+            <input type="text" name="perr_digital_vernier" />
+          </div>
+          <div>
+            <label>% error (digital + micrometer)</label>
+            <input type="text" name="perr_digital_micro" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label>Upload % error calculation pages (optional)</label>
+        <input type="file" name="file_percent_error" multiple />
+
+        <div class="divider"></div>
+
+        <label>Discussion (typed)</label>
+        <textarea name="discussion" placeholder="Answer the analysis questions here."></textarea>
+      </div>
+
+      <div class="card">
+        <h2>Appendix</h2>
+        <label>Upload signed data from the experiment (optional)</label>
+        <input type="file" name="file_signed_data" multiple />
+        <div class="divider"></div>
+
+        <label>Extra attachments (optional)</label>
+        <input type="file" name="file_extra" multiple />
+        <div class="small">Anything else you want included in the final PDF.</div>
+      </div>
+
+      <div class="card">
+        <button class="btn" type="submit">Generate PDF</button>
+        <div class="small" style="margin-top:8px;">
+          The generated PDF will download automatically and will include your uploaded files as appended pages.
+        </div>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

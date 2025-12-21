@@ -1,0 +1,478 @@
+<!-- templates/measurements_error_analysis.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PHYS 4A Lab 1 — Measurements & Error Analysis</title>
+  <style>
+    :root{
+      --yellow:#fff27a;
+      --border:#222;
+      --bg:#f6f6f6;
+    }
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color:#111;
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 18px auto;
+      padding: 0 14px 30px;
+    }
+    h1{
+      margin: 10px 0 2px;
+      font-size: 22px;
+    }
+    .sub{
+      margin: 0 0 14px;
+      font-size: 13px;
+      opacity: .8;
+    }
+    form{
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.04);
+    }
+    .section{
+      margin-top: 18px;
+      border-top: 2px solid #000;
+      padding-top: 14px;
+    }
+    .section:first-child{
+      border-top: 0;
+      padding-top: 0;
+      margin-top: 0;
+    }
+    .section h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 14px;
+    }
+    .grid3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px 14px;
+    }
+    .field label{
+      display:block;
+      font-weight:700;
+      font-size: 14px;
+      margin: 0 0 6px;
+    }
+    input[type="text"], input[type="date"], input[type="password"], textarea{
+      width:100%;
+      box-sizing:border-box;
+      border: 2px solid var(--border);
+      border-radius: 0;
+      padding: 10px 10px;
+      font-size: 14px;
+      background: var(--yellow);
+      outline: none;
+    }
+    textarea{
+      min-height: 90px;
+      resize: vertical;
+    }
+    input[type="file"]{
+      width:100%;
+      box-sizing:border-box;
+      border: 2px solid var(--border);
+      padding: 8px;
+      background: var(--yellow);
+    }
+    .note{
+      font-size: 12px;
+      opacity: .8;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+    .row{
+      display:flex;
+      gap: 12px;
+      align-items:flex-end;
+    }
+    .row .field{ flex:1; }
+    .btns{
+      display:flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    button{
+      border: 2px solid #000;
+      background:#111;
+      color:#fff;
+      padding: 10px 14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .checkbox{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-size:14px;
+    }
+    .small{
+      font-size: 12px;
+      opacity: .85;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PHYS 4A Lab 1 — Measurements and Error Analysis</h1>
+  <p class="sub">All answer fields are yellow. Uploads can be PNG/JPG/PDF. PDFs will be appended to the end of the report.</p>
+
+  <form action="/generate_wk2_lab" method="post" enctype="multipart/form-data">
+
+      <div class="field">
+  <label>Professor Name * [ Enter the name only. ex. Brian Cox ]</label>
+  <input
+    type="text"
+    name="professor_name"
+    id="professor_name"
+    class="answer"
+    required
+    oninput="updateProfessorName()"
+  />
+</div>
+
+      <div class="section">
+      <h2>Cover</h2>
+      <div class="grid2">
+        <div class="field">
+          <label>Name *</label>
+          <input type="text" name="member1" required />
+        </div>
+        <div class="field">
+           <label>Date *</label>
+           <input type="date" name="lab_date" required />
+        </div>
+
+        <div class="field">
+          <label>Lab partner name 1</label>
+          <input type="text" name="member2" />
+        </div>
+        <div class="field">
+          <label>Lab partner name 2</label>
+          <input type="text" name="member3" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Part I — Uncertainties</h2>
+      <div class="grid2">
+        <div class="field"><label>meter stick uncertainty</label><input type="text" name="unc_meterstick" /></div>
+        <div class="field"><label>metric ruler uncertainty</label><input type="text" name="unc_ruler" /></div>
+        <div class="field"><label>triple-beam balance uncertainty</label><input type="text" name="unc_triple" /></div>
+        <div class="field"><label>digital balance uncertainty</label><input type="text" name="unc_digital" /></div>
+        <div class="field"><label>vernier calipers uncertainty</label><input type="text" name="unc_vernier" /></div>
+        <div class="field"><label>micrometer uncertainty</label><input type="text" name="unc_micrometer" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Part II — Volume of Table-Top</h2>
+
+      <div class="grid2">
+        <div class="field"><label>Measuring tool</label><input type="text" name="p2_tool" /></div>
+        <div class="field"><label>Object</label><input type="text" name="p2_object" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Length (cm)</label><input type="text" name="p2_L" /></div>
+        <div class="field"><label>Width (cm)</label><input type="text" name="p2_W" /></div>
+        <div class="field"><label>Thickness (cm)</label><input type="text" name="p2_T" /></div>
+      </div>
+
+      <div class="field">
+        <label>Expression for uncertainty σV (type equation OR upload handwritten)</label>
+        <textarea name="p2_expr"></textarea>
+      </div>
+
+      <div class="grid2">
+        <div class="field"><label>Tabletop volume</label><input type="text" name="p2_volume" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p2_vol_units" /></div>
+      </div>
+
+      <div class="field">
+        <label>Upload handwritten file (uncertainty calculation for tabletop volume)</label>
+        <input type="file" name="p2_unc_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" />
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Volume best value</label><input type="text" name="p2_vol_best" /></div>
+        <div class="field"><label>Volume error</label><input type="text" name="p2_vol_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p2_vol_err_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Part III — Dimensions (Metric Ruler)</h2>
+      <div class="grid2">
+        <div class="field"><label>Object</label><input type="text" name="p3_obj_ruler" /></div>
+        <div class="field"><label>Upload uncertainty work</label><input type="file" name="p3_ruler_unc_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Length (cm)</label><input type="text" name="p3_ruler_L" /></div>
+        <div class="field"><label>Width (cm)</label><input type="text" name="p3_ruler_W" /></div>
+        <div class="field"><label>Thickness (cm)</label><input type="text" name="p3_ruler_T" /></div>
+      </div>
+
+      <div class="field"><label>Expression σV</label><textarea name="p3_ruler_expr"></textarea></div>
+
+      <div class="grid2">
+        <div class="field"><label>Volume</label><input type="text" name="p3_ruler_vol" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p3_ruler_vol_units" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Volume best value</label><input type="text" name="p3_ruler_best" /></div>
+        <div class="field"><label>Volume error</label><input type="text" name="p3_ruler_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p3_ruler_err_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Part III — Dimensions (Vernier Caliper)</h2>
+      <div class="grid2">
+        <div class="field"><label>Object</label><input type="text" name="p3_obj_vernier" /></div>
+        <div class="field"><label>Upload uncertainty work</label><input type="file" name="p3_vernier_unc_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Length (cm)</label><input type="text" name="p3_vernier_L" /></div>
+        <div class="field"><label>Width (cm)</label><input type="text" name="p3_vernier_W" /></div>
+        <div class="field"><label>Thickness (cm)</label><input type="text" name="p3_vernier_T" /></div>
+      </div>
+
+      <div class="field"><label>Expression σV</label><textarea name="p3_vernier_expr"></textarea></div>
+
+      <div class="grid2">
+        <div class="field"><label>Volume</label><input type="text" name="p3_vernier_vol" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p3_vernier_vol_units" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Volume best value</label><input type="text" name="p3_vernier_best" /></div>
+        <div class="field"><label>Volume error</label><input type="text" name="p3_vernier_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p3_vernier_err_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Part III — Dimensions (Micrometer)</h2>
+      <div class="grid2">
+        <div class="field"><label>Object</label><input type="text" name="p3_obj_mic" /></div>
+        <div class="field"><label>Upload uncertainty work</label><input type="file" name="p3_mic_unc_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Length (cm)</label><input type="text" name="p3_mic_L" /></div>
+        <div class="field"><label>Width (cm)</label><input type="text" name="p3_mic_W" /></div>
+        <div class="field"><label>Thickness (cm)</label><input type="text" name="p3_mic_T" /></div>
+      </div>
+
+      <div class="field"><label>Expression σV</label><textarea name="p3_mic_expr"></textarea></div>
+
+      <div class="grid2">
+        <div class="field"><label>Volume</label><input type="text" name="p3_mic_vol" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p3_mic_vol_units" /></div>
+      </div>
+
+      <div class="grid3">
+        <div class="field"><label>Volume best value</label><input type="text" name="p3_mic_best" /></div>
+        <div class="field"><label>Volume error</label><input type="text" name="p3_mic_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="p3_mic_err_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Mass of Aluminum Block</h2>
+      <div class="grid2">
+        <div class="field"><label>Object (Triple-beam)</label><input type="text" name="m_tb_obj" /></div>
+        <div class="field"><label>Object (Digital)</label><input type="text" name="m_dig_obj" /></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Mass (Triple-beam)</label><input type="text" name="m_tb_mass" /></div>
+        <div class="field"><label>Error (Triple-beam)</label><input type="text" name="m_tb_err" /></div>
+        <div class="field"><label>Units (Triple-beam)</label><input type="text" name="m_tb_units" /></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Mass (Digital)</label><input type="text" name="m_dig_mass" /></div>
+        <div class="field"><label>Error (Digital)</label><input type="text" name="m_dig_err" /></div>
+        <div class="field"><label>Units (Digital)</label><input type="text" name="m_dig_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Density Estimate 1 (Triple-beam + Metric Ruler)</h2>
+      <div class="field"><label>Expression σρ</label><textarea name="d1_expr"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Density</label><input type="text" name="d1_density" /></div>
+        <div class="field"><label>Units</label><input type="text" name="d1_units" /></div>
+      </div>
+      <div class="field"><label>Upload uncertainty work</label><input type="file" name="d1_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+      <div class="grid3">
+        <div class="field"><label>Best</label><input type="text" name="d1_best" /></div>
+        <div class="field"><label>Error</label><input type="text" name="d1_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="d1_err_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Density Estimate 2 (Digital + Vernier)</h2>
+      <div class="field"><label>Expression σρ</label><textarea name="d2_expr"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Density</label><input type="text" name="d2_density" /></div>
+        <div class="field"><label>Units</label><input type="text" name="d2_units" /></div>
+      </div>
+      <div class="field"><label>Upload uncertainty work</label><input type="file" name="d2_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+      <div class="grid3">
+        <div class="field"><label>Best</label><input type="text" name="d2_best" /></div>
+        <div class="field"><label>Error</label><input type="text" name="d2_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="d2_err_units" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Density Estimate 3 (Digital + Micrometer)</h2>
+      <div class="field"><label>Expression σρ</label><textarea name="d3_expr"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Density</label><input type="text" name="d3_density" /></div>
+        <div class="field"><label>Units</label><input type="text" name="d3_units" /></div>
+      </div>
+      <div class="field"><label>Upload uncertainty work</label><input type="file" name="d3_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+      <div class="grid3">
+        <div class="field"><label>Best</label><input type="text" name="d3_best" /></div>
+        <div class="field"><label>Error</label><input type="text" name="d3_err" /></div>
+        <div class="field"><label>Units</label><input type="text" name="d3_err_units" /></div>
+      </div>
+    </div>
+<!--
+    <div class="section">
+      <h2>Sample Calculation Upload</h2>
+      <div class="field"><label>Upload sample calculation</label><input type="file" name="sample_calc" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+    </div>
+-->
+    <div class="section">
+      <h2>Data Analysis</h2>
+      <div class="grid3">
+        <div class="field"><label>% error (Triple-beam + Metric Ruler)</label><input type="text" name="perr_1" /></div>
+        <div class="field"><label>% error (Digital + Vernier)</label><input type="text" name="perr_2" /></div>
+        <div class="field"><label>% error (Digital + Micrometer)</label><input type="text" name="perr_3" /></div>
+      </div>
+
+      <div class="field"><label>Upload percent error sample calculation</label><input type="file" name="perr_upload" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+
+      <div class="field"><label>Q2. Which of the 3 densities gave the most accurate answer? Was this what you expected why or why not? Explain!</label><textarea name="qa2"></textarea></div>
+      <div class="field"><label>Q3. Was the propagating error involved in calculating the density significant with any combination of the measuring devices? Explain.</label><textarea name="qa3"></textarea></div>
+      <div class="field"><label>Q4. What were the random errors involved and how did they affect the density and uncertainty calculation?</label><textarea name="qa4"></textarea></div>
+      <div class="field"><label>Q5. What systematic errors were involved?</label><textarea name="qa5"></textarea></div>
+      <div class="field"><label>Q6. Comment on any other sources of error that could have been involved.</label><textarea name="qa6"></textarea></div>
+    </div>
+
+    <div class="section">
+  <h2>Appendix I — Images of Measurements</h2>
+
+  <h3>Part II — Volume of Tabletop (Meter Ruler)</h3>
+
+  <div class="field">
+    <label>Tabletop — LENGTH (image)</label>
+    <input type="file" name="app1_table_length" accept=".png,.jpg,.jpeg,.webp" />
+  </div>
+
+  <div class="field">
+    <label>Tabletop — WIDTH (image)</label>
+    <input type="file" name="app1_table_width" accept=".png,.jpg,.jpeg,.webp" />
+  </div>
+
+  <div class="field">
+    <label>Tabletop — HEIGHT (image)</label>
+    <input type="file" name="app1_table_height" accept=".png,.jpg,.jpeg,.webp" />
+  </div>
+
+  <h3>Part III — Density of Aluminum Block</h3>
+
+  <h4>LENGTH</h4>
+  <div class="field"><label>Metric Ruler</label><input type="file" name="app1_length_ruler" accept=".png,.jpg,.jpeg,.webp" /></div>
+  <div class="field"><label>Vernier Caliper</label><input type="file" name="app1_length_vernier" accept=".png,.jpg,.jpeg,.webp" /></div>
+  <div class="field"><label>Micrometer</label><input type="file" name="app1_length_micrometer" accept=".png,.jpg,.jpeg,.webp" /></div>
+
+  <h4>WIDTH</h4>
+  <div class="field"><label>Metric Ruler</label><input type="file" name="app1_width_ruler" accept=".png,.jpg,.jpeg,.webp" /></div>
+  <div class="field"><label>Vernier Caliper</label><input type="file" name="app1_width_vernier" accept=".png,.jpg,.jpeg,.webp" /></div>
+  <div class="field"><label>Micrometer</label><input type="file" name="app1_width_micrometer" accept=".png,.jpg,.jpeg,.webp" /></div>
+
+  <h4>HEIGHT</h4>
+  <div class="field"><label>Metric Ruler</label><input type="file" name="app1_height_ruler" accept=".png,.jpg,.jpeg,.webp" /></div>
+  <div class="field"><label>Vernier Caliper</label><input type="file" name="app1_height_vernier" accept=".png,.jpg,.jpeg,.webp" /></div>
+  <div class="field"><label>Micrometer</label><input type="file" name="app1_height_micrometer" accept=".png,.jpg,.jpeg,.webp" />
+  </div>
+
+<h3>Mass Measurements</h3>
+
+  <div class="field">
+    <label>Digital Balance</label>
+    <input type="file" name="app1_mass_digital" accept=".png,.jpg,.jpeg,.webp" />
+  </div>
+
+  <div class="field">
+    <label>Triple Beam Balance</label>
+    <input type="file" name="app1_mass_triplebeam" accept=".png,.jpg,.jpeg,.webp" />
+  </div>
+
+
+    <div class="section">
+      <h2>Appendix II — Signed Data</h2>
+      <div class="field"><label>Upload signed data</label><input type="file" name="signed_data" accept=".png,.jpg,.jpeg,.webp,.pdf" /></div>
+    </div>
+
+    <div class="section">
+      <h2>Instructor-only (Optional)</h2>
+      <div class="checkbox">
+        <input type="checkbox" name="include_appendix_ii" id="include_appendix_ii" />
+        <label for="include_appendix_ii"><b>Include Appendix II (Instructor-only locked copy)</b></label>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label>Instructor password (required to generate instructor copy)</label>
+        <input type="password" name="instructor_password" />
+        <div class="note">If password is blank, only the student PDF will be generated.</div>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button type="submit">Generate PDF</button>
+    </div>
+
+    <p class="small" style="margin-top:10px;">
+      Folder structure expected:
+      <br/>- app.py
+      <br/>- templates/measurements_error_analysis.html
+      <br/>- static/deanza_logo.png, metric_ruler.png, vernier_page4.png, vernier_page5.png, micrometer_1.png, micrometer_2.png
+    </p>
+
+  </form>
+</div>
+
+<script>
+function updateProfessorName() {
+  const val = document.getElementById("professor_name").value.trim();
+  document.getElementById("professorDisplay").textContent =
+    val || "Professor Name";
+}
+</script>
+
+</body>
+</html>
+

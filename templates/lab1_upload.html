@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>PHYS 4A Lab 1 Upload</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .card { border: 1px solid #ccc; padding: 16px; margin-bottom: 16px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+    code { background: #eee; padding: 2px 6px; }
+  </style>
+</head>
+<body>
+
+<h2>PHYS 4A Lab 1 – Upload Images</h2>
+
+<form method="POST" action="/generate" enctype="multipart/form-data">
+
+  <div class="card">
+    <h3>Required / Common</h3>
+    {% for key, label, filename in slots_common %}
+      <div class="row">
+        <div>
+          <b>{{ label }}</b><br>
+          <small>Save as: <code>{{ filename }}</code></small>
+        </div>
+        <input type="file" name="{{ key }}">
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h3>Under-table student uploads</h3>
+    {% for key, label, filename in slots_under %}
+      <div class="row">
+        <div>
+          <b>{{ label }}</b><br>
+          <small>Save as: <code>{{ filename }}</code></small>
+        </div>
+        <input type="file" name="{{ key }}">
+      </div>
+    {% endfor %}
+  </div>
+
+  <button type="submit">Generate PDF</button>
+</form>
+
+</body>
+</html>

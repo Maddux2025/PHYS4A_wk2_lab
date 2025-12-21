@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PHYS 4A Lab Report — Manual Entry</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 1100px; margin: 22px auto; padding: 0 16px; }
+    h1 { margin: 0 0 6px 0; }
+    .hint { color:#555; margin: 4px 0 14px 0; line-height: 1.35; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 14px; }
+    label { display:block; font-weight: 700; margin-top: 10px; }
+    input, textarea { width:100%; padding:8px; margin-top:6px; box-sizing:border-box; }
+    textarea { min-height: 110px; }
+    .row3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .row2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .small { font-size: 0.92rem; color:#555; margin-top: 6px; }
+    button { margin-top: 14px; padding: 10px 14px; font-weight: 800; cursor: pointer; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .sep { height: 1px; background: #eee; margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <h1>PHYS 4A — Lab Report PDF Generator (Manual Results)</h1>
+  <div class="hint">
+    This version is <b>manual</b>: students enter their computed results (Volumes, Densities, Uncertainties, % error).<br>
+    The program will only format a professional PDF and attach uploads.
+  </div>
+
+  <form method="POST" action="/generate-density-lab" enctype="multipart/form-data">
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>Student & Lab Info</h3>
+
+        <label>Student Name</label>
+        <input name="student_name" required placeholder="Jane Doe">
+
+        <label>Lab Partner 1</label>
+        <input name="partner_1" placeholder="Partner 1 (optional)">
+
+        <label>Lab Partner 2</label>
+        <input name="partner_2" placeholder="Partner 2 (optional)">
+
+        <label>Date</label>
+        <input name="lab_date" type="date" required>
+
+        <label>Student ID (optional)</label>
+        <input name="student_id" placeholder="12345678">
+      </div>
+
+      <div class="card">
+        <h3>Part I — Device Uncertainties</h3>
+        <div class="small">Units: <b>cm</b> for lengths, <b>g</b> for masses.</div>
+
+        <div class="row2">
+          <div>
+            <label>Meter stick σ (cm)</label>
+            <input name="sigma_meterstick_cm" value="0.05" class="mono">
+          </div>
+          <div>
+            <label>Metric ruler σ (cm)</label>
+            <input name="sigma_ruler_cm" value="0.05" class="mono">
+          </div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>Vernier caliper σ (cm)</label>
+            <input name="sigma_caliper_cm" value="0.01" class="mono">
+          </div>
+          <div>
+            <label>Micrometer σ (cm)</label>
+            <input name="sigma_micrometer_cm" value="0.001" class="mono">
+          </div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label>Triple-beam balance σ (g)</label>
+            <input name="sigma_triple_g" value="0.1" class="mono">
+          </div>
+          <div>
+            <label>Digital balance σ (g)</label>
+            <input name="sigma_digital_g" value="0.01" class="mono">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid" style="margin-top:12px;">
+
+      <div class="card">
+        <h3>Part II — Table-top (Manual Results)</h3>
+
+        <div class="row2">
+          <div>
+            <label>Table-top Volume V (cm³)</label>
+            <input name="table_V_cm3" class="mono" placeholder="Student enters V">
+          </div>
+          <div>
+            <label>Uncertainty σV (cm³)</label>
+            <input name="table_sigmaV_cm3" class="mono" placeholder="Student enters σV">
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="small">Optional: record measured dimensions (cm)</div>
+        <div class="row3">
+          <div><label>L (cm)</label><input name="table_L_cm" class="mono" placeholder="optional"></div>
+          <div><label>W (cm)</label><input name="table_W_cm" class="mono" placeholder="optional"></div>
+          <div><label>H (cm)</label><input name="table_H_cm" class="mono" placeholder="optional"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Part III — Mass Measurements</h3>
+        <div class="row2">
+          <div>
+            <label>Mass (Triple-beam) M_tb (g)</label>
+            <input name="mass_triple_g" class="mono" placeholder="e.g., 54.3">
+          </div>
+          <div>
+            <label>Mass (Digital) M_dig (g)</label>
+            <input name="mass_digital_g" class="mono" placeholder="e.g., 54.28">
+          </div>
+        </div>
+        <div class="small">Masses are optional here, but recommended to record.</div>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3>Part III — Aluminum Block Dimensions (Record Measurements)</h3>
+      <div class="small">Enter L, W, H in cm for each device set (optional but recommended).</div>
+
+      <h4>Metric ruler</h4>
+      <div class="row3">
+        <div><label>L_r (cm)</label><input name="ruler_L_cm" class="mono"></div>
+        <div><label>W_r (cm)</label><input name="ruler_W_cm" class="mono"></div>
+        <div><label>H_r (cm)</label><input name="ruler_H_cm" class="mono"></div>
+      </div>
+
+      <h4>Vernier caliper</h4>
+      <div class="row3">
+        <div><label>L_c (cm)</label><input name="caliper_L_cm" class="mono"></div>
+        <div><label>W_c (cm)</label><input name="caliper_W_cm" class="mono"></div>
+        <div><label>H_c (cm)</label><input name="caliper_H_cm" class="mono"></div>
+      </div>
+
+      <h4>Micrometer</h4>
+      <div class="row3">
+        <div><label>L_m (cm)</label><input name="mic_L_cm" class="mono"></div>
+        <div><label>W_m (cm)</label><input name="mic_W_cm" class="mono"></div>
+        <div><label>H_m (cm)</label><input name="mic_H_cm" class="mono"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3>Part III — Manual Results (enter your computed values)</h3>
+
+      <h4>Block Volume Results</h4>
+      <div class="row2">
+        <div><label>V_ruler (cm³)</label><input name="V_ruler_cm3" class="mono"></div>
+        <div><label>σV_ruler (cm³)</label><input name="sigmaV_ruler_cm3" class="mono"></div>
+      </div>
+      <div class="row2">
+        <div><label>V_caliper (cm³)</label><input name="V_caliper_cm3" class="mono"></div>
+        <div><label>σV_caliper (cm³)</label><input name="sigmaV_caliper_cm3" class="mono"></div>
+      </div>
+      <div class="row2">
+        <div><label>V_micrometer (cm³)</label><input name="V_mic_cm3" class="mono"></div>
+        <div><label>σV_micrometer (cm³)</label><input name="sigmaV_mic_cm3" class="mono"></div>
+      </div>
+
+      <div class="sep"></div>
+
+      <h4>Density Results (Required Combinations)</h4>
+      <div class="small">Enter density ρ, uncertainty σρ, and % error.</div>
+
+      <div class="row3">
+        <div><label>ρ (TB + Ruler)</label><input name="rho_tb_ruler" class="mono" placeholder="g/cm³"></div>
+        <div><label>σρ (TB + Ruler)</label><input name="sigma_rho_tb_ruler" class="mono" placeholder="g/cm³"></div>
+        <div><label>% error (TB + Ruler)</label><input name="pct_err_tb_ruler" class="mono" placeholder="%"></div>
+      </div>
+
+      <div class="row3">
+        <div><label>ρ (Digital + Caliper)</label><input name="rho_dig_caliper" class="mono" placeholder="g/cm³"></div>
+        <div><label>σρ (Digital + Caliper)</label><input name="sigma_rho_dig_caliper" class="mono" placeholder="g/cm³"></div>
+        <div><label>% error (Digital + Caliper)</label><input name="pct_err_dig_caliper" class="mono" placeholder="%"></div>
+      </div>
+
+      <div class="row3">
+        <div><label>ρ (Digital + Micrometer)</label><input name="rho_dig_mic" class="mono" placeholder="g/cm³"></div>
+        <div><label>σρ (Digital + Micrometer)</label><input name="sigma_rho_dig_mic" class="mono" placeholder="g/cm³"></div>
+        <div><label>% error (Digital + Micrometer)</label><input name="pct_err_dig_mic" class="mono" placeholder="%"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3>Submission Uploads</h3>
+
+      <label>Instructor-signed data sheet (image)</label>
+      <input type="file" name="signed_data_image" accept="image/*">
+
+      <label>Raw data file (CSV/TXT/PDF/Image)</label>
+      <input type="file" name="raw_data_file" accept=".csv,.txt,.pdf,image/*">
+
+      <label>Sample calculations (upload image/PDF)</label>
+      <input type="file" name="sample_calculations" accept=".pdf,image/*">
+
+      <div class="small">
+        Uploaded images will be embedded into PDF appendices. Other files are saved and listed by filename.
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h3>Data Analysis (Student responses)</h3>
+      <textarea name="analysis_questions"
+        placeholder="Answer:
+1) % error vs 2.699 g/cm^3
+2) Which density was most accurate and why?
+3) Was propagated error significant for any combo?
+4) Random errors and their impact
+5) Systematic errors
+6) Other sources of error"></textarea>
+
+      <button type="submit">Generate PDF Report</button>
+    </div>
+
+  </form>
+</body>
+</html>
