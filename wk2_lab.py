@@ -60,11 +60,11 @@ DEFAULT_HEADER_RIGHT = "Professor Name"
 # Static assets (filenames you confirmed)
 # =========================
 LOGO_PATH = os.path.join(STATIC_DIR, "deanza_logo.png")
-METRIC_RULER_IMG = os.path.join(STATIC_DIR, "metric_ruler.png")
-VERNIER_IMG_PAGE4 = os.path.join(STATIC_DIR, "vernier_page4.png")
-VERNIER_IMG_PAGE5 = os.path.join(STATIC_DIR, "vernier_page5.png")
-MICROMETER_IMG_1 = os.path.join(STATIC_DIR, "micrometer_1.png")
-MICROMETER_IMG_2 = os.path.join(STATIC_DIR, "micrometer_2.png")
+METRIC_RULER_IMG = os.path.join(STATIC_DIR, "metric_ruler.jpg")
+VERNIER_IMG_PAGE4 = os.path.join(STATIC_DIR, "vernier_page4.jpg")
+VERNIER_IMG_PAGE5 = os.path.join(STATIC_DIR, "vernier_page5.jpg")
+MICROMETER_IMG_1 = os.path.join(STATIC_DIR, "micrometer_1.jpg")
+MICROMETER_IMG_2 = os.path.join(STATIC_DIR, "micrometer_2.jpg")
 
 # =========================
 # Colors
@@ -571,14 +571,13 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     story.append(
         Paragraph(
             "1. Measure the dimensions of your table-top with the meter stick.<br/>"
-            "2. Using the error propagation equation derive an expression for the uncertainty σV for "
-            "the volume of the table top.<br/>"
+            "2. Using error propagation equation derive an expression for the uncertainty σV for the volume of the table top.<br/>"
             "3. Calculate the volume of the table top.<br/>"
             "4. Calculate the uncertainty σV of the table top.",
             styles["BodyText"],
         )
     )
-    story.append(Spacer(1, 0.08 * inch))
+    story.append(Spacer(1, 0.04 * inch))
     story.append(Paragraph("<b>Results :</b>", styles["BodyText"]))
 
     t = Table(
@@ -589,7 +588,7 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     st.add("BACKGROUND", (1, 0), (1, 1), YELLOW)
     t.setStyle(st)
     story.append(t)
-    story.append(Spacer(1, 0.08 * inch))
+    story.append(Spacer(1, 0.04 * inch))
 
     t = Table(
         [["Tabletop", "Length", "Width", "Thickness"], ["Dimensions (cm)", payload.get("p2_L", ""), payload.get("p2_W", ""), payload.get("p2_T", "")]],
@@ -599,7 +598,7 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     st.add("BACKGROUND", (1, 1), (3, 1), YELLOW)
     t.setStyle(st)
     story.append(t)
-    story.append(Spacer(1, 0.08 * inch))
+    story.append(Spacer(1, 0.04 * inch))
 
     t = Table(
         [["expression for the uncertainty  σV in\nthe volume of the table top", payload.get("p2_expr", "")]],
@@ -609,7 +608,7 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     st.add("BACKGROUND", (1, 0), (1, 0), YELLOW)
     t.setStyle(st)
     story.append(t)
-    story.append(Spacer(1, 0.08 * inch))
+    story.append(Spacer(1, 0.04 * inch))
 
     t = Table(
         [["", "Volume", "Units"], ["Tabletop volume", payload.get("p2_volume", ""), payload.get("p2_vol_units", "")]],
@@ -619,7 +618,7 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     st.add("BACKGROUND", (1, 1), (2, 1), YELLOW)
     t.setStyle(st)
     story.append(t)
-    story.append(Spacer(1, 0.08 * inch))
+    story.append(Spacer(1, 0.04 * inch))
 
     t = Table(
         [["Calculate the uncertainty  σV in the\nvolume of the table top", "Uploaded file: " + (os.path.basename(payload.get("p2_unc_upload", "")) if payload.get("p2_unc_upload") else "")]],
@@ -641,6 +640,8 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     st.add("BACKGROUND", (0, 0), (-1, 0), LIGHT_GREY)
     st.add("BACKGROUND", (1, 1), (1, 1), YELLOW)
     st.add("BACKGROUND", (3, 1), (4, 1), YELLOW)
+
+
     t.setStyle(st)
     story.append(t)
 
