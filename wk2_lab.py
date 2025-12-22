@@ -1025,8 +1025,8 @@ def home():
     return render_template("wk2_lab_HTMLform.html")
 
 
-@app.post("/generate")
-def generate():
+@app.post("/generate_wk2_lab")
+def generate_wk2_lab():
     try:
         payload = {
             "member1": (request.form.get("member1") or "").strip(),
