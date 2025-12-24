@@ -25,10 +25,45 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
 # PDF append support
-try:
-    from pypdf import PdfReader, PdfWriter
-except Exception:
-    from PyPDF2 import PdfReader, PdfWriter
+
+from PyPDF2 import PdfReader, PdfWriter
+from reportlab.platypus import PageTemplate, Frame, NextPageTemplate, PageBreak
+#-----------------
+#rotate letters
+#--------------
+from reportlab.platypus import Flowable
+from reportlab.lib import colors
+
+class RotatedLabel(Flowable):
+    """Draw text rotated 90 degrees (counter-clockwise by default)."""
+    def __init__(self, text, width, height, fontName="Helvetica-Bold", fontSize=10, color=colors.black, clockwise=False):
+        super().__init__()
+        self.text = text
+        self.width = width      # cell width
+        self.height = height    # cell height
+        self.fontName = fontName
+        self.fontSize = fontSize
+        self.color = color
+        self.clockwise = clockwise
+
+    def wrap(self, availWidth, availHeight):
+        # occupy the full cell we were given
+        return (self.width, self.height)
+
+    def draw(self):
+        c = self.canv
+        c.saveState()
+        c.setFont(self.fontName, self.fontSize)
+        c.setFillColor(self.color)
+
+        # Rotate around the cell center
+        c.translate(self.width / 2.0, self.height / 2.0)
+        c.rotate(-90 if not self.clockwise else 90)
+
+        # After rotation, x/y axes swap; center text
+        c.drawCentredString(0, -self.fontSize / 2.0, self.text)
+
+        c.restoreState()
 
 
 # =========================
@@ -80,6 +115,7 @@ APP1_IMG_W = 2.3 * inch
 APP1_IMG_H = 1.6 * inch
 APP1_MASS_IMG_H = 0.35 * inch   # <-- ADD THIS
 
+
 # =========================
 # Appendix I — image box sizes
 # =========================
@@ -91,6 +127,100 @@ APP1_MASS_HEADER_H = 0.30 * inch
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 PDF_EXTS = {".pdf"}
 ALLOWED_EXTS = IMAGE_EXTS | PDF_EXTS
+
+PAGE_W = letter[0]
+LEFT_MARGIN = 0.7 * inch
+RIGHT_MARGIN = 0.7 * inch
+FRAME_W = PAGE_W - LEFT_MARGIN - RIGHT_MARGIN
+
+
+# =========================
+# Scoring / marking scheme
+# =========================
+
+YELLOW_TEXT_FIELDS = [
+    # Cover
+    "member1", "member2", "lab_date",
+
+    # Part I
+    "unc_meterstick", "unc_ruler", "unc_triple", "unc_digital", "unc_vernier", "unc_micrometer",
+
+    # Part II
+    "p2_tool", "p2_object", "p2_L", "p2_W", "p2_T", "p2_volume", "p2_vol_units",
+    "p2_vol_best", "p2_vol_err", "p2_vol_err_units",
+
+    # Part III — Metric ruler
+    "p3_obj_ruler", "p3_ruler_L", "p3_ruler_W", "p3_ruler_T",
+    "p3_ruler_vol", "p3_ruler_vol_units",
+    "p3_ruler_best", "p3_ruler_err", "p3_ruler_err_units",
+
+    # Part III — Vernier
+    "p3_obj_vernier", "p3_vernier_L", "p3_vernier_W", "p3_vernier_T",
+    "p3_vernier_vol", "p3_vernier_vol_units",
+    "p3_vernier_best", "p3_vernier_err", "p3_vernier_err_units",
+
+    # Part III — Micrometer
+    "p3_obj_mic", "p3_mic_L", "p3_mic_W", "p3_mic_T",
+    "p3_mic_vol", "p3_mic_vol_units",
+    "p3_mic_best", "p3_mic_err", "p3_mic_err_units",
+
+    # Mass
+    "m_tb_obj", "m_tb_mass", "m_tb_err", "m_tb_units",
+    "m_dig_obj", "m_dig_mass", "m_dig_err", "m_dig_units",
+
+    # Density 1/2/3
+    "d1_density", "d1_units", "d1_best", "d1_err", "d1_err_units",
+    "d2_density", "d2_units", "d2_best", "d2_err", "d2_err_units",
+    "d3_density", "d3_units", "d3_best", "d3_err", "d3_err_units",
+
+    # Data analysis + questions
+    "perr_1", "perr_2", "perr_3",
+    "qa2", "qa3", "qa4", "qa5", "qa6",
+]
+
+YELLOW_UPLOAD_FIELDS = [
+    "p2_unc_upload",
+    "p3_ruler_unc_upload",
+    "p3_vernier_unc_upload",
+    "p3_mic_unc_upload",
+    "d1_upload", "d2_upload", "d3_upload",
+    "perr_upload",
+
+    # Appendix I images
+    "app1_table_length", "app1_table_width", "app1_table_height",
+    "app1_length_ruler", "app1_length_vernier", "app1_length_micrometer",
+    "app1_width_ruler", "app1_width_vernier", "app1_width_micrometer",
+    "app1_height_ruler", "app1_height_vernier", "app1_height_micrometer",
+    "app1_mass_digital", "app1_mass_triplebeam",
+
+    # Appendix II
+    "signed_data",
+]
+
+def is_filled_text(val: str) -> bool:
+    return bool(val and str(val).strip())
+
+def is_filled_upload(path: str) -> bool:
+    return bool(path and os.path.exists(path))
+
+def compute_score(payload: dict):
+    score = 0
+    missing = []
+
+    for k in YELLOW_TEXT_FIELDS:
+        if is_filled_text(payload.get(k)):
+            score += 1
+        else:
+            missing.append(k)
+
+    for k in YELLOW_UPLOAD_FIELDS:
+        if is_filled_upload(payload.get(k)):
+            score += 1
+        else:
+            missing.append(k)
+
+    total = len(YELLOW_TEXT_FIELDS) + len(YELLOW_UPLOAD_FIELDS)
+    return score, total, missing
 
 
 def safe_filename(s: str) -> str:
@@ -236,6 +366,23 @@ def add_uploaded_block(story, styles, label: str, path: str, max_w=6.6 * inch, m
         story.append(Paragraph("<i>(Unsupported file type for preview.)</i>", styles["Small"]))
         story.append(Spacer(1, 0.10 * inch))
 
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+
+def vertical_word(word: str, styles):
+    """
+    Draw word vertically with the first letter at the bottom.
+    Example: LENGTH -> H T G N E L (top to bottom), so L is bottom.
+    """
+    letters = "<br/>".join(list(reversed(word.strip().upper())))
+    vstyle = ParagraphStyle(
+        name="VLabel",
+        parent=styles["BodyText"],
+        alignment=TA_CENTER,
+        leading=9,
+        fontSize=9,
+    )
+    return Paragraph(f"<b>{letters}</b>", vstyle)
 
 def append_pdf_uploads(main_pdf_bytes: bytes, upload_paths: list[str]) -> bytes:
     """
@@ -278,6 +425,10 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     )
 
     story = []
+
+    FULL_WIDTH = letter[0] - 0.25 * inch
+    SHIFT_LEFT = 0.55 * inch
+
 
     def draw_header_footer(canvas, doc):
         canvas.saveState()
@@ -378,11 +529,15 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
         ["Lab partner name 1 :", payload.get("member2", "")],
         ["Lab partner name 2 :", payload.get("member3", "")],
         ["Date :", payload.get("lab_date", "")],
+        ["Completion score :", f'{payload.get("score", 0)}/{payload.get("score_total", 0)} ({payload.get("completion_pct", 0)}%)'],
+
+
     ]
     t = Table(cover_rows, colWidths=[2.2 * inch, 4.8 * inch])
 
     st = yellow_table_style()
     st.add("BACKGROUND", (1, 0), (1, -1), YELLOW)
+
 
     # 🔥 Larger font for BOTH columns
     st.add("FONTSIZE", (0, 0), (-1, -1), 13)
@@ -390,6 +545,23 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     st.add("BOTTOMPADDING", (0, 0), (-1, -1), 8)
 
     t.setStyle(st)
+
+    pct = payload.get("completion_pct", 0)
+
+    if pct >= 90:
+        pct_color = colors.lightgreen
+    elif pct >= 75:
+        pct_color = colors.orange
+    else:
+        pct_color = colors.firebrick
+
+    # Color the ENTIRE last row (label + value)
+    st.add("BACKGROUND", (0, -1), (1, -1), pct_color)
+
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (1, -1), (1, -1), pct_color),
+    ]))
+
     story.append(t)
 
     story.append(PageBreak())
@@ -881,7 +1053,9 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     # =========================
     # Appendix I – Images of Measurements
     # =========================
+    story.append(NextPageTemplate("appendix_wide"))
     story.append(PageBreak())
+
     story.append(Paragraph("<b>APPENDIX I – Images of Measurements</b>", styles["H1"]))
     story.append(Spacer(1, 0.12 * inch))
 
@@ -889,96 +1063,183 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
     story.append(Paragraph("<b>Part II – Volume of Tabletop – Meter Ruler</b>", styles["BodyText"]))
     story.append(Spacer(1, 0.08 * inch))
 
-    t = Table(
-        [[
+    # Use wide appendix margins
+    FULL_WIDTH = letter[0] - 0.30 * inch
+    col_w = FULL_WIDTH / 3
+
+    data = [
+        [
+            Paragraph("<b>Length</b>", styles["BodyText"]),
+            Paragraph("<b>Width</b>", styles["BodyText"]),
+            Paragraph("<b>Height</b>", styles["BodyText"]),
+        ],
+        [
             appendix_image_cell(payload.get("app1_table_length")),
             appendix_image_cell(payload.get("app1_table_width")),
             appendix_image_cell(payload.get("app1_table_height")),
-        ]],
-        colWidths=[APP1_IMG_W] * 3,
-        rowHeights=[APP1_IMG_H],
+        ],
+    ]
+
+    t = Table(
+        data,
+        colWidths=[col_w, col_w, col_w],
+        rowHeights=[0.32 * inch, APP1_IMG_H],
     )
+
     t.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 1.2, colors.black),
-    ]))
-    story.append(t)
 
+        # White header row
+        ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+
+        # Yellow image cells
+        ("BACKGROUND", (0, 1), (-1, 1), YELLOW),
+
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+
+    #t.hAlign = "LEFT"
+    story.append(t)
     story.append(Spacer(1, 0.25 * inch))
 
     # ---- Part III: Density of Aluminum Block
     story.append(Paragraph("<b>Part III – Density of Aluminum Block</b>", styles["BodyText"]))
-    story.append(Spacer(1, 0.08 * inch))
+    story.append(Spacer(1, 0.06 * inch))
 
-    header = ["Metric Ruler", "Vernier Caliper", "Micrometer"]
-    rows = ["LENGTH", "WIDTH", "HEIGHT"]
+    PAGE_W = letter[0]
+    FULL_WIDTH = PAGE_W - 0.05 * inch
+    SHIFT_LEFT = 0.90 * inch
 
-    data = []
-    data.append(header)
+    label_w = 0.26 * inch
+    img_w = (FULL_WIDTH - label_w) / 3
 
-    for r in rows:
-        data.append([
-            appendix_image_cell(payload.get(f"app1_{r.lower()}_ruler")),
-            appendix_image_cell(payload.get(f"app1_{r.lower()}_vernier")),
-            appendix_image_cell(payload.get(f"app1_{r.lower()}_micrometer")),
-        ])
+    data = [
+        ["",
+         Paragraph("<b>Metric Ruler</b>", styles["BodyText"]),
+         Paragraph("<b>Vernier Caliper</b>", styles["BodyText"]),
+         Paragraph("<b>Micrometer</b>", styles["BodyText"])],
+
+        [RotatedLabel("LENGTH", label_w, APP1_IMG_H, clockwise=True),
+         appendix_image_cell(payload.get("app1_length_ruler")),
+         appendix_image_cell(payload.get("app1_length_vernier")),
+         appendix_image_cell(payload.get("app1_length_micrometer"))],
+
+        [RotatedLabel("WIDTH", label_w, APP1_IMG_H, clockwise=True),
+         appendix_image_cell(payload.get("app1_width_ruler")),
+         appendix_image_cell(payload.get("app1_width_vernier")),
+         appendix_image_cell(payload.get("app1_width_micrometer"))],
+
+        [RotatedLabel("HEIGHT", label_w, APP1_IMG_H, clockwise=True),
+         appendix_image_cell(payload.get("app1_height_ruler")),
+         appendix_image_cell(payload.get("app1_height_vernier")),
+         appendix_image_cell(payload.get("app1_height_micrometer"))],
+    ]
 
     t = Table(
         data,
-        colWidths=[APP1_IMG_W] * 3,
-        rowHeights=[0.4 * inch] + [APP1_IMG_H] * 3,
+        colWidths=[label_w, img_w, img_w, img_w],
+        rowHeights=[0.36 * inch, APP1_IMG_H, APP1_IMG_H, APP1_IMG_H],
     )
+
     t.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 1.2, colors.black),
-        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+
+        # whole header row white
+        ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+
+        # left label column white
+        ("BACKGROUND", (0, 0), (0, -1), colors.white),
+
+        # yellow only image area
+        ("BACKGROUND", (1, 1), (-1, -1), YELLOW),
+
+        ("ALIGN", (1, 0), (-1, 0), "CENTER"),
+        ("ALIGN", (0, 1), (0, -1), "CENTER"),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+        ("LEFTPADDING", (0, 0), (-1, -1), 2),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 2),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
     ]))
+
+    # ✅ shift wide table left (reduces right margin)
+    #t.hAlign = "LEFT"
+    #t._offs = (-SHIFT_LEFT, 0)
+
     story.append(t)
 
-    story.append(Spacer(1, 0.18 * inch))
-    story.append(Paragraph("<b>Mass Measurements</b>", styles["BodyText"]))
+    # -------------------------
+    # Mass Measurements (Images)
+    # -------------------------
+    story.append(Paragraph("<b>Part III – Mass Measurements</b>", styles["BodyText"]))
     story.append(Spacer(1, 0.06 * inch))
 
-    mass_tbl = Table(
-        [[
+    # Two image columns (adjust these if you want left narrower/right wider)
+    col_left = 2.5 * inch
+    col_right = FULL_WIDTH - col_left
+
+    mass_data = [
+        [
             Paragraph("<b>DIGITAL BALANCE</b>", styles["BodyText"]),
             Paragraph("<b>TRIPLE BEAM BALANCE</b>", styles["BodyText"]),
         ],
-            [
-                appendix_image_cell(payload.get("app1_mass_digital", "")),
-                appendix_image_cell(payload.get("app1_mass_triplebeam", "")),
-            ]],
-        colWidths=[3.5 * inch, 3.5 * inch],
-        rowHeights=[APP1_MASS_IMG_H, APP1_IMG_H],
+        [
+            appendix_image_cell(payload.get("app1_mass_digital")),
+            appendix_image_cell(payload.get("app1_mass_triplebeam")),
+        ],
+    ]
+
+    mass_tbl = Table(
+        mass_data,
+        colWidths=[col_left, col_right],
+        rowHeights=[0.34 * inch, APP1_IMG_H],
     )
 
     mass_tbl.setStyle(TableStyle([
-        ("BOX", (0, 0), (-1, -1), 1.0, colors.black),
-        ("INNERGRID", (0, 0), (-1, -1), 1.0, colors.black),
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("GRID", (0, 0), (-1, -1), 1.2, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.white),  # header row white
+        ("BACKGROUND", (0, 1), (-1, 1), YELLOW),  # image row yellow
+        ("ALIGN", (0, 0), (-1, 0), "LEFT"),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-        ("TOPPADDING", (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ("LEFTPADDING", (0, 0), (-1, -1), 2),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 2),
+        ("TOPPADDING", (0, 0), (-1, -1), 3),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
     ]))
-    story.append(mass_tbl)
 
-    # Appendix II signed data
+    #mass_tbl.hAlign = "LEFT"
+    #mass_tbl._offs = (-SHIFT_LEFT, 0)
+
+    story.append(mass_tbl)
+    story.append(Spacer(1, 0.18 * inch))
+
+
+    # =========================
+    # Appendix II – signed data
+    # =========================
+
     story.append(PageBreak())
     story.append(Paragraph("<b>Appendix II</b>", styles["H1"]))
     story.append(Paragraph("Instructor signed data from the experiment", styles["BodyText"]))
     story.append(Spacer(1, 0.08 * inch))
 
-    signed = payload.get("signed_data", "")
-    t = Table([["Signed data from the lab", "Uploaded file: " + (os.path.basename(signed) if signed else "")]], colWidths=[3.2 * inch, 3.8 * inch])
+    signed_path = payload.get("signed_data", "")
+
+    t = Table(
+        [["Signed data from the lab", "Uploaded file: " + (os.path.basename(signed_path) if signed_path else "")]],
+        colWidths=[3.2 * inch, 3.8 * inch],
+    )
     st = yellow_table_style()
     st.add("BACKGROUND", (1, 0), (1, 0), YELLOW)
     t.setStyle(st)
     story.append(t)
 
-    add_uploaded_block(story, styles, "Signed data", signed, max_h=6.6 * inch)
-
-
+    add_uploaded_block(story, styles, "Signed data", signed_path, max_h=6.6 * inch)
 
     # Appendix III (optional)
     if include_appendix_ii:
@@ -1017,8 +1278,36 @@ def build_pdf_wk2_lab(payload: dict, include_appendix_ii: bool, instructor_passw
         encrypt=encrypt,
         title="PHYS 4A Lab 1 - Measurements and Error Analysis",
     )
+    # ------------------------------------------------------------
+    # Page templates: normal margins + wide appendix margins
+    # ------------------------------------------------------------
+    normal_frame = Frame(
+        doc.leftMargin,
+        doc.bottomMargin,
+        doc.width,
+        doc.height,
+        id="normal_frame",
+    )
+
+    APP_L = 0.15 * inch
+    APP_R = 0.15 * inch
+    appendix_frame = Frame(
+        APP_L,
+        doc.bottomMargin,
+        letter[0] - APP_L - APP_R,
+        doc.height,
+        id="appendix_frame",
+    )
+
+    doc.addPageTemplates([
+        PageTemplate(id="normal", frames=[normal_frame], onPage=draw_header_footer),
+        PageTemplate(id="appendix_wide", frames=[appendix_frame], onPage=draw_header_footer),
+    ])
+
     doc.build(story, onFirstPage=draw_header_footer, onLaterPages=draw_header_footer)
     return buf.getvalue()
+
+
 
 
 @app.get("/")
@@ -1157,13 +1446,35 @@ def generate_wk2_lab():
         payload["app1_mass_digital"] = save_upload(request.files.get("app1_mass_digital"), "app1_mass_digital")
         payload["app1_mass_triplebeam"] = save_upload(request.files.get("app1_mass_triplebeam"), "app1_mass_triplebeam")
 
+        # =========================
+        # Instructor PDF password handling
+        # =========================
         instructor_pw = (request.form.get("instructor_password") or "").strip()
+
+        # OPTIONAL fallback password (only if form is blank)
+        if not instructor_pw:
+            instructor_pw = os.environ.get("INSTRUCTOR_PDF_PASSWORD", "").strip()
+            # or hardcode temporarily (NOT recommended for GitHub)
+            # instructor_pw = "MYnameisSisira"
+
         include_appendix_ii = bool(request.form.get("include_appendix_ii")) and bool(instructor_pw)
 
         if not payload["member1"]:
             raise ValueError("Lab member name 1 is required.")
         if not payload["lab_date"]:
             raise ValueError("Date is required.")
+
+        # =========================
+        # Score (after uploads saved, before PDF build)
+        # =========================
+        score, total, missing = compute_score(payload)
+
+        payload["score"] = score
+        payload["score_total"] = total
+        payload["missing_fields"] = missing
+        payload["missing_count"] = len(missing)
+        payload["completion_pct"] = round((score / total) * 100) if total else 0
+        payload["completion_text"] = f"{score}/{total} ({payload['completion_pct']}%)"
 
         # Build student PDF
         student_pdf = build_pdf_wk2_lab(payload, include_appendix_ii=False)
@@ -1181,6 +1492,8 @@ def generate_wk2_lab():
             payload.get("perr_upload", ""),
             payload.get("signed_data", ""),
         ]
+
+
         student_pdf = append_pdf_uploads(student_pdf, all_uploads)
 
         base = safe_filename(payload["member1"] + "_" + payload["lab_date"]).replace(".", "_")
@@ -1190,9 +1503,15 @@ def generate_wk2_lab():
             f.write(student_pdf)
 
         # Optional instructor copy (locked)
+
         if include_appendix_ii:
-            instr_pdf = build_pdf(payload, include_appendix_ii=True, instructor_password=instructor_pw)
+            instr_pdf = build_pdf_wk2_lab(
+                payload,
+                include_appendix_ii=True,
+                instructor_password=instructor_pw
+            )
             instr_pdf = append_pdf_uploads(instr_pdf, all_uploads)
+
             instr_name = f"{base}_INSTRUCTOR.pdf"
             with open(os.path.join(OUT_DIR, instr_name), "wb") as f:
                 f.write(instr_pdf)
